@@ -7,7 +7,7 @@
     "neopix-image-diff": "bin/neopix-image-diff.js"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "mocha test/test.js"
   },
   "repository": {
     "url": "https://github.com/ilicmarko/neopix-image-diff",
@@ -20,5 +20,12 @@
     "fs-extra": "^6.0.1",
     "mz": "^2.7.0",
     "resemblejs": "^2.10.3"
+  },
+  "devDependencies": {
+    "chai": "^4.1.2",
+    "chai-fs": "^2.0.0",
+    "coveralls": "^3.0.2",
+    "istanbul": "^0.4.5",
+    "mocha": "^5.2.0"
   }
 }
