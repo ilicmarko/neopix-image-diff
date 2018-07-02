@@ -1,0 +1,24 @@
+{
+  "name": "@weareneopix/neopix-image-diff",
+  "version": "0.0.2",
+  "description": "Compare two images and then export the difference.",
+  "main": "index.js",
+  "bin": {
+    "neopix-diff": "bin/neopix-diff.js"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "url": "https://github.com/ilicmarko/neopix-image-diff",
+    "type": "git"
+  },
+  "author": "Marko Ilic",
+  "license": "MIT",
+  "dependencies": {
+    "commander": "^2.16.0",
+    "fs-extra": "^6.0.1",
+    "mz": "^2.7.0",
+    "resemblejs": "^2.10.3"
+  }
+}
