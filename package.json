@@ -4,7 +4,7 @@
   "description": "Compare two images and then export the difference.",
   "main": "index.js",
   "bin": {
-    "neopix-diff": "bin/neopix-diff.js"
+    "neopix-image-diff": "bin/neopix-image-diff.js"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"

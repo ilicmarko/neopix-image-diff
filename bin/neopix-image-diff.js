@@ -9,17 +9,44 @@ const compareImages = require('resemblejs/compareImages');
 const { getPath } = require('../lib/localPath');
 
 // @TODO: Make all this as arguments.
-const FOLDERS = {
-    original: getPath('example/xxx'),
-    updated: getPath('example/yyy'),
-    diff: getPath('example/diff')
-};
 
+let mode;
+let FOLDERS;
 program
     .version(require('../package.json').version)
     .option('-i --input <path>', 'Original image path. Required')
+    .option('-t --threshold <float>', 'Threshold until the test fails', parseFloat)
+    .option('-m --mode <mode>', 'What would you like to ignore?', /^(nothing|less|antialiasing|colors|alpha)$/i)
+    .option('-d --dir <dir>', 'Base directory where you would like to create test folders.')
     .parse(process.argv);
 
+async function setup() {
+    mode = program.mode;
+    if (mode === true) {
+        console.log(`Invalid mode`);
+        console.log('Falling back to default mode: nothing');
+
+        mode = 'nothing';
+    }
+    const dir = (program.dir) ? program.dir : './';
+
+    FOLDERS = {
+        original: getPath(path.join(dir, '/xxx')),
+        updated: getPath(path.join(dir, '/yyy')),
+        diff: getPath(path.join(dir, '/diff'))
+    };
+}
+
+
+function requiredArgs() {
+    return program.input && program.threshold;
+}
+
+/**
+ * Calculate diff
+ * @param {String} fileName
+ * @returns {Promise<*>}
+ */
 async function getDiff(fileName) {
     const options = {
         output: {
@@ -30,12 +57,12 @@ async function getDiff(fileName) {
             },
             errorType: "movement",
             transparency: 0.3,
-            largeImageThreshold: 1200,
+            largeImageThreshold: 1920,
             useCrossOrigin: false,
-            outputDiff: true
+            outputDiff: true,
         },
         scaleToSameSize: true,
-        ignore: 'antialiasing'
+        ignore: mode
     };
 
     const data = await compareImages(
@@ -46,8 +73,7 @@ async function getDiff(fileName) {
 
     await fs.writeFile(path.join(FOLDERS.diff, fileName), data.getBuffer());
 
-    // @TODO: Make this an argument
-    if (data.rawMisMatchPercentage > 1) {
+    if (data.rawMisMatchPercentage > program.threshold) {
         return process.exit(1);
     } else {
         return process.exit(0);
@@ -89,10 +115,11 @@ async function copyImage(image, imageName) {
             await fse.copy(image, path.join(FOLDERS.original, imageName));
         }
 
+        // @TODO: Should I move or copy?
         if ( !fs.existsSync(path.join(FOLDERS.updated, imageName)) ) {
-            await fse.move(path.join(FOLDERS.original, imageName), path.join(FOLDERS.updated, imageName));
+            await fse.copy(path.join(FOLDERS.original, imageName), path.join(FOLDERS.updated, imageName));
         } else {
-            await fse.move(image, path.join(FOLDERS.updated, imageName), {overwrite: true});
+            await fse.copy(image, path.join(FOLDERS.updated, imageName), {overwrite: true});
         }
     } catch (e) {
         console.error(e);
@@ -103,11 +130,12 @@ async function copyImage(image, imageName) {
 /**
  * Simple check if the input argument exists.
  */
-if (program.input) {
+if (requiredArgs()) {
     const filePath = getPath(program.input);
     const fileName = path.basename(filePath);
 
     async function init() {
+        await setup();
         await checkFolders();
         await copyImage(filePath, fileName);
         await getDiff(fileName);
