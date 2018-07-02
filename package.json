@@ -1,6 +1,6 @@
 {
   "name": "@weareneopix/neopix-image-diff",
-  "version": "0.0.2",
+  "version": "1.0.0-beta",
   "description": "Compare two images and then export the difference.",
   "main": "index.js",
   "bin": {
